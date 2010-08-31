@@ -51,7 +51,7 @@ def parse_qs(query):
 
 ENCODED_OPEN_BRACKET = escape('[')
 ENCODED_CLOSE_BRACKET = escape(']')
-def compose_qs(params, sort=False, pattern='%s=%s', join='&', wrap=None):
+def compose_qs(params, sort=False, pattern='%s=%s', join='&', wrap=None, encoding='utf-8', errors='strict'):
     """
     Compose a single string using RFC3986 specified escaping using
     `urlencoding.escape`_ for keys and values.
@@ -89,6 +89,11 @@ def compose_qs(params, sort=False, pattern='%s=%s', join='&', wrap=None):
         elif is_nonstring_iterable(value):
             p = join.join([pattern % (escaped_key, escape(str(v))) for v in value])
         else:
+            if isinstance(value, unicode):
+                value = value.encode(encoding, errors)
+            else:
+                value = str(value)
+
             p = pattern % (escaped_key, escape(str(value)))
         pieces.append(p)
     return join.join(pieces)
